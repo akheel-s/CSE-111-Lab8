@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model classes {
+  class_id   Int          @id @unique(map: "class_id_UNIQUE") @default(autoincrement())
+  name       String?      @db.VarChar(45)
+  teacher_id Int?
+  enrolled   String?      @db.VarChar(45)
+  capacity   String?      @db.VarChar(45)
+  time       String?      @db.VarChar(45)
+  teachers   teachers?    @relation(fields: [teacher_id], references: [teacher_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_classes_teachers_teacher_id")
+  enrollment enrollment[]
+
+  @@index([teacher_id], map: "fk_classes_teachers_teacher_id_idx")
+}
+
+model enrollment {
+  enrollment_id Int      @id @unique(map: "enrollment_id_UNIQUE") @default(autoincrement())
+  class_id      Int
+  student_id    Int
+  grade         Int?
+  classes       classes  @relation(fields: [class_id], references: [class_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_enrollment_classes_class_id")
+  students      students @relation(fields: [student_id], references: [student_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_enrollment_students_student_id")
+
+  @@index([class_id], map: "fk_enrollment_classes_class_id_idx")
+  @@index([student_id], map: "fk_enrollment_students_student_id_idx")
+}
+
+model students {
+  student_id Int          @id @default(autoincrement())
+  name       String       @db.VarChar(45)
+  user_id    Int
+  users      users        @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_students_users_user_id")
+  enrollment enrollment[]
+
+  @@index([user_id], map: "user_id_idx")
+}
+
+model teachers {
+  teacher_id Int       @id @unique(map: "teacher_id_UNIQUE") @default(autoincrement())
+  name       String    @db.VarChar(45)
+  user_id    Int
+  users      users     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_teachers_users_user_id")
+  classes    classes[]
+
+  @@index([user_id], map: "fk_teachers_users_user_id_idx")
+}
+
+model users {
+  user_id  Int        @id @default(autoincrement())
+  username String     @unique(map: "username_UNIQUE") @db.VarChar(25)
+  password String     @db.VarChar(25)
+  students students[]
+  teachers teachers[]
+}
