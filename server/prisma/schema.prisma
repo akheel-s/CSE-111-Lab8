@@ -54,7 +54,7 @@ model teachers {
 
 model users {
   user_id  Int        @id @default(autoincrement())
-  username String     @unique(map: "username_UNIQUE") @db.VarChar(25)
+  username String     @db.VarChar(25)
   password String     @db.VarChar(25)
   students students[]
   teachers teachers[]
